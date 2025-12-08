@@ -8,15 +8,18 @@ const invoiceSchema = new mongoose.Schema({
     },
     month: {
         type: String, // Format: YYYY-MM
-        required: true
+        required: true,
+        match: [/^\d{4}-\d{2}$/, 'Please enter a valid month in YYYY-MM format']
     },
     jars_delivered: {
         type: Number,
-        default: 0
+        default: 0,
+        min: 0
     },
     jars_returned: {
         type: Number,
-        default: 0
+        default: 0,
+        min: 0
     },
     deposit_adjustment: {
         type: Number,
@@ -24,7 +27,8 @@ const invoiceSchema = new mongoose.Schema({
     },
     amount_due: {
         type: Number,
-        required: true
+        required: true,
+        min: 0
     },
     payment_status: {
         type: String,

@@ -13,10 +13,12 @@ const jarTransactionSchema = new mongoose.Schema({
     },
     qty: {
         type: Number,
-        required: true
+        required: true,
+        min: 1
     },
     remarks: {
-        type: String
+        type: String,
+        trim: true
     },
     delivery_id: {
         type: mongoose.Schema.Types.ObjectId,

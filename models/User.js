@@ -8,15 +8,22 @@ const userSchema = new mongoose.Schema({
     },
     name: {
         type: String,
-        required: true
+        required: true,
+        trim: true,
+        minlength: 2,
+        maxlength: 50
     },
     mobile: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
+        trim: true,
+        match: [/^[0-9]{10}$/, 'Please enter a valid 10-digit mobile number']
     },
     whatsapp: {
-        type: String
+        type: String,
+        trim: true,
+        match: [/^[0-9]{10}$/, 'Please enter a valid 10-digit WhatsApp number']
     },
     password_hash: {
         type: String,

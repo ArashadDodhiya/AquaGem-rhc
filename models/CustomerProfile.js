@@ -7,13 +7,17 @@ const customerProfileSchema = new mongoose.Schema({
         required: true
     },
     address: {
-        flat: String,
-        building: String,
-        society: String,
-        area: String,
-        city: String,
-        pincode: String,
-        landmark: String
+        flat: { type: String, trim: true },
+        building: { type: String, trim: true },
+        society: { type: String, trim: true },
+        area: { type: String, trim: true },
+        city: { type: String, trim: true },
+        pincode: {
+            type: String,
+            trim: true,
+            match: [/^[0-9]{6}$/, 'Please enter a valid 6-digit pincode']
+        },
+        landmark: { type: String, trim: true }
     },
     route_id: {
         type: mongoose.Schema.Types.ObjectId,
@@ -25,15 +29,20 @@ const customerProfileSchema = new mongoose.Schema({
             enum: ['daily', 'alternate', 'custom'],
             default: 'daily'
         },
-        custom_days: [String] // e.g., ['Mon', 'Wed', 'Fri']
+        custom_days: [{
+            type: String,
+            enum: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+        }]
     },
     security_deposit: {
         type: Number,
-        default: 0
+        default: 0,
+        min: 0
     },
     empty_jars_issued: {
         type: Number,
-        default: 0
+        default: 0,
+        min: 0
     },
     jar_balance: {
         type: Number,

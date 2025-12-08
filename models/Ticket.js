@@ -8,11 +8,14 @@ const ticketSchema = new mongoose.Schema({
     },
     subject: {
         type: String,
-        required: true
+        required: true,
+        trim: true,
+        maxlength: 100
     },
     message: {
         type: String,
-        required: true
+        required: true,
+        trim: true
     },
     status: {
         type: String,

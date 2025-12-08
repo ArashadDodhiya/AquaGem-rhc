@@ -21,12 +21,14 @@ const deliverySchema = new mongoose.Schema({
     delivered_qty: {
         type: Number,
         required: true,
-        immutable: true
+        immutable: true,
+        min: 0
     },
     returned_qty: {
         type: Number,
         required: true,
-        immutable: true
+        immutable: true,
+        min: 0
     },
     status: {
         type: String,
@@ -36,7 +38,8 @@ const deliverySchema = new mongoose.Schema({
     },
     notes: {
         type: String,
-        immutable: true
+        immutable: true,
+        trim: true
     },
     created_at: {
         type: Date,

@@ -17,12 +17,14 @@ const paymentSchema = new mongoose.Schema({
     },
     amount: {
         type: Number,
-        required: true
+        required: true,
+        min: 1
     },
     transaction_id: {
         type: String,
         unique: true,
-        sparse: true
+        sparse: true,
+        trim: true
     },
     status: {
         type: String,
