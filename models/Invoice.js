@@ -38,6 +38,13 @@ const invoiceSchema = new mongoose.Schema({
     pdf_url: {
         type: String
     },
+    upi_qr_url: {
+        type: String
+    },
+    upi_id: {
+        type: String,
+        trim: true
+    },
     created_at: {
         type: Date,
         default: Date.now

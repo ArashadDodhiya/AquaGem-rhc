@@ -10,6 +10,12 @@ import Invoice from '../models/Invoice.js';
 import Payment from '../models/Payment.js';
 import Product from '../models/Product.js';
 import Ticket from '../models/Ticket.js';
+import Notification from '../models/Notification.js';
+import OtpRequest from '../models/OtpRequest.js';
+import AuditLog from '../models/AuditLog.js';
+import VendingTransaction from '../models/VendingTransaction.js';
+import JarInventory from '../models/JarInventory.js';
+import ReportCache from '../models/ReportCache.js';
 
 dotenv.config();
 
@@ -29,6 +35,12 @@ const verify = async () => {
             console.log('- Payment');
             console.log('- Product');
             console.log('- Ticket');
+            console.log('- Notification');
+            console.log('- OtpRequest');
+            console.log('- AuditLog');
+            console.log('- VendingTransaction');
+            console.log('- JarInventory');
+            console.log('- ReportCache');
             return;
         }
 

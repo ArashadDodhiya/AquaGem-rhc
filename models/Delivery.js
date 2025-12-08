@@ -41,6 +41,16 @@ const deliverySchema = new mongoose.Schema({
         immutable: true,
         trim: true
     },
+    photo_url: {
+        type: String
+    },
+    signature_url: {
+        type: String
+    },
+    gps_location: {
+        lat: Number,
+        lng: Number
+    },
     created_at: {
         type: Date,
         default: Date.now,

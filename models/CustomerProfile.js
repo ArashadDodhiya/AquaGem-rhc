@@ -17,7 +17,18 @@ const customerProfileSchema = new mongoose.Schema({
             trim: true,
             match: [/^[0-9]{6}$/, 'Please enter a valid 6-digit pincode']
         },
-        landmark: { type: String, trim: true }
+        landmark: { type: String, trim: true },
+        geo: {
+            type: {
+                type: String,
+                enum: ['Point'],
+                default: 'Point'
+            },
+            coordinates: {
+                type: [Number],
+                index: '2dsphere'
+            }
+        }
     },
     route_id: {
         type: mongoose.Schema.Types.ObjectId,
@@ -47,6 +58,10 @@ const customerProfileSchema = new mongoose.Schema({
     jar_balance: {
         type: Number,
         default: 0
+    },
+    delivery_instructions: {
+        type: String,
+        trim: true
     },
     is_active: {
         type: Boolean,
