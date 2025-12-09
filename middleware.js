@@ -8,6 +8,7 @@ export function middleware(request) {
     const protectedRoutes = [
         { path: '/api/admin', role: 'admin' },
         { path: '/api/delivery', role: 'delivery_boy' },
+        { path: '/api/customer', role: 'customer' },
     ];
 
     // Check if the current path is protected
@@ -40,7 +41,9 @@ export function middleware(request) {
         if (payload.role !== matchedRoute.role) {
             const roleMessage = matchedRoute.role === 'admin'
                 ? 'Admin access only.'
-                : 'Delivery boy access only.';
+                : matchedRoute.role === 'delivery_boy'
+                    ? 'Delivery boy access only.'
+                    : 'Customer access only.';
 
             return NextResponse.json(
                 { success: false, message: `Forbidden. ${roleMessage}` },
@@ -72,5 +75,6 @@ export const config = {
     matcher: [
         '/api/admin/:path*', // Protect all /api/admin/* routes
         '/api/delivery/:path*', // Protect all /api/delivery/* routes
+        '/api/customer/:path*', // Protect all /api/customer/* routes
     ],
 };
