@@ -3,8 +3,6 @@ import connectDB from '@/lib/db';
 import User from '@/models/User';
 import OtpRequest from '@/models/OtpRequest';
 import { generateOtp, createOtpExpiry } from '@/lib/otp';
-import { sendWhatsAppOTP } from '@/lib/whatsapp';
-import { sendSMSOTP } from '@/lib/sms';
 
 export async function POST(request) {
     try {
@@ -68,40 +66,13 @@ export async function POST(request) {
             is_used: false,
         });
 
-        // Send OTP via both SMS and WhatsApp
-        const sendResults = {
-            sms: false,
-            whatsapp: false
-        };
-
-        // Try SMS
-        try {
-            await sendSMSOTP(mobile, otp);
-            sendResults.sms = true;
-            console.log(`✅ SMS OTP sent to ${mobile}`);
-        } catch (smsError) {
-            console.error('SMS sending failed:', smsError.message);
-        }
-
-        // Try WhatsApp
-        try {
-            await sendWhatsAppOTP(mobile, otp);
-            sendResults.whatsapp = true;
-            console.log(`✅ WhatsApp OTP sent to ${mobile}`);
-        } catch (whatsappError) {
-            console.error('WhatsApp sending failed:', whatsappError.message);
-        }
-
-        // Check if at least one channel succeeded
-        if (!sendResults.sms && !sendResults.whatsapp) {
-            console.warn('⚠️  Both SMS and WhatsApp failed, but OTP is saved in DB');
-        }
+        // Log OTP to console (for development/testing)
+        console.log(`📱 OTP for ${mobile}: ${otp}`);
 
         return NextResponse.json(
             {
                 success: true,
                 message: 'OTP sent successfully',
-                channels: sendResults,
                 // Remove this in production - only for testing
                 ...(process.env.NODE_ENV === 'development' && { otp }),
             },
