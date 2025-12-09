@@ -25,4 +25,4 @@ const otpRequestSchema = new mongoose.Schema({
     }
 });
 
-export default mongoose.model('OtpRequest', otpRequestSchema);
+export default mongoose.models.OtpRequest || mongoose.model('OtpRequest', otpRequestSchema);

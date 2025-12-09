@@ -71,4 +71,4 @@ const customerProfileSchema = new mongoose.Schema({
     timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }
 });
 
-export default mongoose.model('CustomerProfile', customerProfileSchema);
+export default mongoose.models.CustomerProfile || mongoose.model('CustomerProfile', customerProfileSchema);

@@ -1,12 +1,14 @@
 # Customer Authentication API Documentation
 
 ## Overview
-Complete customer authentication system with registration and OTP-based login.
+Complete customer authentication system with separate registration and login flows.
 
 ## API Endpoints
 
-### 1. Register Customer
+### 1. Register Customer (New Users Only)
 **POST** `/api/auth/customer/register`
+
+Strictly for new users. Returns error if mobile already exists.
 
 **Request:**
 ```json
@@ -17,27 +19,33 @@ Complete customer authentication system with registration and OTP-based login.
   "address": {
     "flat": "101",
     "building": "Tower A",
-    "society": "Green Valley",
-    "area": "Sector 21",
     "city": "Mumbai",
-    "pincode": "400001",
-    "landmark": "Near Metro Station"
+    "pincode": "400001"
   },
   "delivery_schedule": "daily"
 }
 ```
 
-**Response:**
+**Success Response (201):**
 ```json
 {
   "success": true,
   "message": "Registration successful. OTP sent.",
-  "otp": "123456"  // Only in development
+  "otp": "123456"
 }
 ```
 
-### 2. Request OTP
-**POST** `/api/auth/customer/otp/request`
+**Error Response (409 - Already Registered):**
+```json
+{
+  "success": false,
+  "message": "Mobile number already registered. Please login.",
+  "already_registered": true
+}
+```
+
+### 2. Login (Existing Users Only)
+**POST** `/api/auth/customer/login`
 
 **Request:**
 ```json
@@ -46,120 +54,27 @@ Complete customer authentication system with registration and OTP-based login.
 }
 ```
 
-**Response:**
+**Success Response (200):**
 ```json
 {
   "success": true,
   "message": "OTP sent successfully",
-  "otp": "123456"  // Only in development
+  "otp": "123456"
+}
+```
+
+**Error Response (404 - Not Registered):**
+```json
+{
+  "success": false,
+  "message": "User not found. Please register first.",
+  "not_registered": true
 }
 ```
 
 ### 3. Verify OTP
 **POST** `/api/auth/customer/otp/verify`
+(Same as before)
 
-**Request:**
-```json
-{
-  "mobile": "9876543210",
-  "otp": "123456"
-}
-```
-
-**Response:**
-```json
-{
-  "success": true,
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "customer": {
-    "_id": "...",
-    "name": "John Doe",
-    "mobile": "9876543210",
-    "role": "customer"
-  }
-}
-```
-
-### 4. Refresh Token
-**POST** `/api/auth/customer/refresh`
-
-**Response:**
-```json
-{
-  "success": true,
-  "token": "new_access_token"
-}
-```
-
-### 5. Logout
-**POST** `/api/auth/customer/logout`
-
-**Response:**
-```json
-{
-  "success": true,
-  "message": "Logged out successfully"
-}
-```
-
-## Protected Routes
-
-All routes under `/api/customer/*` are protected and require:
-- Valid JWT token in `Authorization: Bearer <token>` header
-- `role === 'customer'`
-
-## Testing
-
-### Register New Customer
-```bash
-curl -X POST http://localhost:3000/api/auth/customer/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "John Doe",
-    "mobile": "9876543210",
-    "whatsapp": "9876543210",
-    "address": {
-      "flat": "101",
-      "building": "Tower A",
-      "city": "Mumbai",
-      "pincode": "400001"
-    },
-    "delivery_schedule": "daily"
-  }'
-```
-
-### Request OTP
-```bash
-curl -X POST http://localhost:3000/api/auth/customer/otp/request \
-  -H "Content-Type: application/json" \
-  -d '{"mobile":"9876543210"}'
-```
-
-### Verify OTP
-```bash
-curl -X POST http://localhost:3000/api/auth/customer/otp/verify \
-  -H "Content-Type: application/json" \
-  -d '{"mobile":"9876543210","otp":"123456"}' \
-  -c cookies.txt
-```
-
-## Security Features
-
-✅ **Mobile validation** (10 digits)  
-✅ **Duplicate prevention** (unique mobile)  
-✅ **OTP expiry** (10 minutes)  
-✅ **Single-use OTP**  
-✅ **Role-based access control**  
-✅ **JWT tokens** (Access: 15min, Refresh: 7 days)  
-✅ **HttpOnly cookies**
-
-## Error Codes
-
-| Status | Message | Description |
-|--------|---------|-------------|
-| 400 | Mobile must be 10 digits | Invalid mobile format |
-| 400 | OTP has expired | OTP older than 10 minutes |
-| 401 | Invalid OTP | Wrong OTP entered |
-| 403 | Customer access only | Wrong user role |
-| 404 | User not found | Mobile not registered |
-| 409 | Mobile already registered | Duplicate registration |
+### 4. Refresh Token & Logout
+(Same as before)
