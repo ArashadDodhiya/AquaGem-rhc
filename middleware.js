@@ -4,15 +4,18 @@ import { verifyAccessToken } from './lib/jwt';
 export function middleware(request) {
     const { pathname } = request.nextUrl;
 
-    // Define protected routes (admin-only)
-    const protectedRoutes = ['/api/admin'];
+    // Define protected routes with their required roles
+    const protectedRoutes = [
+        { path: '/api/admin', role: 'admin' },
+        { path: '/api/delivery', role: 'delivery_boy' },
+    ];
 
     // Check if the current path is protected
-    const isProtectedRoute = protectedRoutes.some((route) =>
-        pathname.startsWith(route)
+    const matchedRoute = protectedRoutes.find((route) =>
+        pathname.startsWith(route.path)
     );
 
-    if (!isProtectedRoute) {
+    if (!matchedRoute) {
         return NextResponse.next();
     }
 
@@ -33,10 +36,14 @@ export function middleware(request) {
     try {
         const payload = verifyAccessToken(token);
 
-        // Check if user is admin
-        if (payload.role !== 'admin') {
+        // Check if user has the required role
+        if (payload.role !== matchedRoute.role) {
+            const roleMessage = matchedRoute.role === 'admin'
+                ? 'Admin access only.'
+                : 'Delivery boy access only.';
+
             return NextResponse.json(
-                { success: false, message: 'Forbidden. Admin access only.' },
+                { success: false, message: `Forbidden. ${roleMessage}` },
                 { status: 403 }
             );
         }
@@ -64,5 +71,6 @@ export function middleware(request) {
 export const config = {
     matcher: [
         '/api/admin/:path*', // Protect all /api/admin/* routes
+        '/api/delivery/:path*', // Protect all /api/delivery/* routes
     ],
 };
