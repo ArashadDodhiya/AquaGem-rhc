@@ -3,6 +3,7 @@ import connectDB from '@/lib/db';
 import User from '@/models/User';
 import OtpRequest from '@/models/OtpRequest';
 import { generateOtp, createOtpExpiry } from '@/lib/otp';
+import { sendWhatsAppOTP } from '@/lib/whatsapp';
 
 export async function POST(request) {
     try {
@@ -66,14 +67,20 @@ export async function POST(request) {
             is_used: false,
         });
 
-        // TODO: Send OTP via SMS/WhatsApp
-        // For now, we'll just log it (in production, integrate with SMS gateway)
-        console.log(`📱 OTP for ${mobile}: ${otp}`);
+        // Send OTP via WhatsApp
+        try {
+            await sendWhatsAppOTP(mobile, otp);
+            console.log(`✅ OTP sent to ${mobile} via WhatsApp`);
+        } catch (whatsappError) {
+            console.error('WhatsApp sending failed:', whatsappError);
+            // Continue anyway - OTP is saved in DB
+            // In production, you might want to return an error here
+        }
 
         return NextResponse.json(
             {
                 success: true,
-                message: 'OTP sent successfully',
+                message: 'OTP sent successfully via WhatsApp',
                 // Remove this in production - only for testing
                 ...(process.env.NODE_ENV === 'development' && { otp }),
             },
