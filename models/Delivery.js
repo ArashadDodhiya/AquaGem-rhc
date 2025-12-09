@@ -61,10 +61,9 @@ const deliverySchema = new mongoose.Schema({
 // Prevent updates to existing documents
 deliverySchema.pre('save', function (next) {
     if (!this.isNew) {
-        const err = new Error('Delivery documents are immutable.');
-        return next(err);
+        return next(new Error('Delivery documents are immutable.'));
     }
-    next();
+    return next();
 });
 
 export default mongoose.model('Delivery', deliverySchema);
