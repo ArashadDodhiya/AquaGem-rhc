@@ -1,80 +1,70 @@
-import { NextResponse } from 'next/server';
-import { verifyAccessToken } from './lib/jwt';
+import { NextResponse } from "next/server";
+import { verifyAccessToken } from "./lib/jwt";
 
-export function middleware(request) {
+export async function middleware(request) {
     const { pathname } = request.nextUrl;
 
-    // Define protected routes with their required roles
     const protectedRoutes = [
-        { path: '/api/admin', role: 'admin' },
-        { path: '/api/delivery', role: 'delivery_boy' },
-        { path: '/api/customer', role: 'customer' },
+        { path: "/api/admin", role: "admin" },
+        { path: "/api/delivery", role: "delivery_boy" },
+        { path: "/api/customer", role: "customer" },
     ];
 
-    // Check if the current path is protected
-    const matchedRoute = protectedRoutes.find((route) =>
-        pathname.startsWith(route.path)
-    );
+    const matched = protectedRoutes.find(r => pathname.startsWith(r.path));
 
-    if (!matchedRoute) {
-        return NextResponse.next();
-    }
+    if (!matched) return NextResponse.next();
 
-    // Extract token from Authorization header
-    const authHeader = request.headers.get('authorization');
-    const token = authHeader?.startsWith('Bearer ')
+    // 1️⃣ Try Authorization header first
+    const authHeader = request.headers.get("authorization");
+    let token = authHeader?.startsWith("Bearer ")
         ? authHeader.substring(7)
         : null;
 
+    // 2️⃣ Fallback → accessToken cookie
+    if (!token) {
+        token = request.cookies.get("accessToken")?.value;
+    }
+
     if (!token) {
         return NextResponse.json(
-            { success: false, message: 'Unauthorized. No token provided.' },
+            { success: false, message: "Unauthorized. No token provided." },
             { status: 401 }
         );
     }
 
-    // Verify token
+    console.log("AUTH HEADER TOKEN:", authHeader);
+    console.log("COOKIE TOKEN:", request.cookies.get("accessToken")?.value);
+    console.log("FINAL TOKEN USED:", token);
+
+
     try {
-        const payload = verifyAccessToken(token);
+        const payload = await verifyAccessToken(token);
 
-        // Check if user has the required role
-        if (payload.role !== matchedRoute.role) {
-            const roleMessage = matchedRoute.role === 'admin'
-                ? 'Admin access only.'
-                : matchedRoute.role === 'delivery_boy'
-                    ? 'Delivery boy access only.'
-                    : 'Customer access only.';
-
+        if (payload.role !== matched.role) {
             return NextResponse.json(
-                { success: false, message: `Forbidden. ${roleMessage}` },
+                { success: false, message: "Forbidden. Role mismatch." },
                 { status: 403 }
             );
         }
 
-        // Attach user data to request headers (for API routes to access)
-        const requestHeaders = new Headers(request.headers);
-        requestHeaders.set('x-user-id', payload.user_id);
-        requestHeaders.set('x-user-role', payload.role);
-        requestHeaders.set('x-user-mobile', payload.mobile);
+        const headers = new Headers(request.headers);
+        headers.set("x-user-id", payload.user_id);
+        headers.set("x-user-role", payload.role);
 
-        return NextResponse.next({
-            request: {
-                headers: requestHeaders,
-            },
-        });
-    } catch (error) {
+        return NextResponse.next({ request: { headers } });
+
+    } catch (err) {
         return NextResponse.json(
-            { success: false, message: 'Unauthorized. Invalid or expired token.' },
+            { success: false, message: "Unauthorized. Invalid or expired token." },
             { status: 401 }
         );
     }
 }
 
-// Configure which routes to run middleware on
 export const config = {
     matcher: [
-        '/api/admin/:path*', // Protect all /api/admin/* routes
-        '/api/delivery/:path*', // Protect all /api/delivery/* routes
-        '/api/customer/:path*', // Protect all /api/customer/* routes
+        "/api/admin/:path*",
+        "/api/delivery/:path*",
+        "/api/customer/:path*",
     ],
 };
