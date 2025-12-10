@@ -121,7 +121,21 @@ export async function POST(request) {
         );
 
         // Set refresh token in HttpOnly cookie
-        setRefreshCookie(response, refreshToken);
+        response.cookies.set("accessToken", accessToken, {
+            httpOnly: false,
+            secure: false,
+            sameSite: "lax",
+            path: "/",
+            priority: "high"   // ← THIS ENSURES ACCESS TOKEN IS SENT FIRST
+        });
+
+        response.cookies.set("refreshToken", refreshToken, {
+            httpOnly: false,
+            secure: false,
+            sameSite: "lax",
+            path: "/",
+            priority: "low"
+        });
 
         return response;
     } catch (error) {
