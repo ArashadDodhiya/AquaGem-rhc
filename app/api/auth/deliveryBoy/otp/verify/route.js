@@ -102,8 +102,8 @@ export async function POST(request) {
             mobile: user.mobile,
         };
 
-        const accessToken = signAccessToken(tokenPayload);
-        const refreshToken = signRefreshToken(tokenPayload);
+        const accessToken = await signAccessToken(tokenPayload);
+        const refreshToken = await signRefreshToken(tokenPayload);
 
         // Create response
         const response = NextResponse.json(
